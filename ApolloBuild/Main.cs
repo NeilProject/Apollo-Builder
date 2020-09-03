@@ -60,12 +60,16 @@ namespace ApolloBuild {
 
 
         static void Main(string[] args) {
+            Dirry.InitAltDrives();
             Head();
             ParseCLIConfig(args);
             if (CLIConfig.Args.Length == 0) {
                 ShowHelp();
             } else {
-
+                foreach (string p in CLIConfig.Args) {
+                    var P = new Project(p);
+                    P.Run();
+                }
             }
         
             TrickyDebug.AttachWait();
