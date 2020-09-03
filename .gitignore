@@ -6,3 +6,7 @@ MKL*
 # vs?
 .vs
 
+# crap
+bin
+obj
+
