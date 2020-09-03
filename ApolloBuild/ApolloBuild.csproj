@@ -46,40 +46,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\TrickyUnits\Dirry.cs">
+    <Compile Include="..\..\TrickyUnits\Dirry.cs">
       <Link>Dependencies\Tricky%27s Units\Dirry.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\FileList.cs">
+    <Compile Include="..\..\TrickyUnits\FileList.cs">
       <Link>Dependencies\Tricky%27s Units\FileList.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\FlagParse.cs">
+    <Compile Include="..\..\TrickyUnits\FlagParse.cs">
       <Link>Dependencies\Tricky%27s Units\FlagParse.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\Fmt.cs">
+    <Compile Include="..\..\TrickyUnits\Fmt.cs">
       <Link>Dependencies\Tricky%27s Units\Fmt.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\GINIE.cs">
+    <Compile Include="..\..\TrickyUnits\GINIE.cs">
       <Link>Dependencies\Tricky%27s Units\GINIE.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\Maps.cs">
+    <Compile Include="..\..\TrickyUnits\Maps.cs">
       <Link>Dependencies\Tricky%27s Units\Maps.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\mkl.cs">
+    <Compile Include="..\..\TrickyUnits\mkl.cs">
       <Link>Dependencies\Tricky%27s Units\mkl.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\qstr.cs">
+    <Compile Include="..\..\TrickyUnits\qstr.cs">
       <Link>Dependencies\Tricky%27s Units\qstr.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\qstream.cs">
+    <Compile Include="..\..\TrickyUnits\qstream.cs">
       <Link>Dependencies\Tricky%27s Units\qstream.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\QuickConsoleColors.cs">
+    <Compile Include="..\..\TrickyUnits\QuickConsoleColors.cs">
       <Link>Dependencies\Tricky%27s Units\QuickConsoleColors.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\Rand.cs">
+    <Compile Include="..\..\TrickyUnits\Rand.cs">
       <Link>Dependencies\Tricky%27s Units\Rand.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TrickyUnits\TrickyDbg.cs">
+    <Compile Include="..\..\TrickyUnits\TrickyDbg.cs">
       <Link>Dependencies\Tricky%27s Units\TrickyDbg.cs</Link>
     </Compile>
     <Compile Include="Main.cs" />
