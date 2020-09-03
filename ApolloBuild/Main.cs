@@ -61,6 +61,7 @@ namespace ApolloBuild {
 
         static void Main(string[] args) {
             Dirry.InitAltDrives();
+            Project.InitEngineSpecific();
             Head();
             ParseCLIConfig(args);
             if (CLIConfig.Args.Length == 0) {

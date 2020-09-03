@@ -82,8 +82,11 @@
     <Compile Include="..\..\TrickyUnits\TrickyDbg.cs">
       <Link>Dependencies\Tricky%27s Units\TrickyDbg.cs</Link>
     </Compile>
+    <Compile Include="Gather.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Verbose.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
