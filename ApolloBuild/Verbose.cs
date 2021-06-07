@@ -4,7 +4,7 @@
 // 
 // 
 // 
-// (c) Jeroen P. Broks, 2020
+// (c) Jeroen P. Broks, 2020, 2021
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,15 +21,10 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 20.09.03
+// Version: 21.06.07
 // EndLic
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
 using TrickyUnits;
 
 namespace ApolloBuild {
@@ -47,7 +42,7 @@ namespace ApolloBuild {
         static public void Wln(params object[] a) {
             if (bv) {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                foreach (var i in a) Console.Write(a);
+                foreach (var i in a) Console.Write(a.ToString());
             }
             Console.WriteLine();
         }

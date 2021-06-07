@@ -4,7 +4,7 @@
 // 
 // 
 // 
-// (c) Jeroen P. Broks, 2020
+// (c) Jeroen P. Broks, 2020, 2021
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,15 +21,12 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 20.09.03
+// Version: 21.06.07
 // EndLic
-???
+
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Configuration;
 using System.IO;
-using System.Net.NetworkInformation;
 using TrickyUnits;
 
 namespace ApolloBuild {
@@ -70,7 +67,7 @@ namespace ApolloBuild {
         static Dictionary<string, List<EngineSpecific>> EngineSpecificQuestions = new Dictionary<string,List<EngineSpecific>>();
 
         public static void InitEngineSpecific() {
-            MKL.Version("Apollo Builder - Project.cs","20.09.03");
+            MKL.Version("Apollo Builder - Project.cs","21.06.07");
             MKL.Lic    ("Apollo Builder - Project.cs","GNU General Public License 3");
             // CP SDL game engine
             var L = new List<EngineSpecific>();
@@ -95,7 +92,7 @@ namespace ApolloBuild {
             do {
                 var antwoord = Console.ReadKey(true);
                 if (antwoord.Key == ConsoleKey.Y) { QCol.Green("Yes!\n"); return true; }
-                if (antwoord.Key == ConsoleKey.N) { QCol.Red("No!\n"); return true; }
+                if (antwoord.Key == ConsoleKey.N) { QCol.Red("No!\n"); return false; }
             } while (true);
         }
         bool Yes(GINIE work,string cat, string tag,string question) {
@@ -137,6 +134,24 @@ namespace ApolloBuild {
             return antwoord;            
         }
         public string Ask(string cat, string tag, string question, string defaultvalue = "", bool acceptnothing = false) => Ask(Config, cat, tag, question, defaultvalue, acceptnothing);
+
+        public List<string> ListAsk(GINIE work, string cat, string tag, string question) {
+            if (!work.HasList(cat, tag)) {
+                QCol.Yellow($"{question}\n");
+                QCol.Magenta("Now type as many as you need, and when you need no more, just hit enter without anymore input\n");
+                string answer;
+                do {
+                    QCol.Red(">");
+                    QCol.Cyan("");
+                    answer = Console.ReadLine();
+                    if (answer != "") work.ListAdd(cat, tag, answer);
+                } while (answer != "");
+            }
+            if (!work.HasList(cat, tag)) return null;
+            return work.List(cat, tag);
+        }
+
+        public List<string> ListAsk(string cat, string tag, string question) => ListAsk(Config, cat, tag, question);
        
         void Kill(GINIE work,string cat, string tag) {
             work[cat, tag] = "";
@@ -185,21 +200,63 @@ namespace ApolloBuild {
             InputDir=Dirry.AD(Ask("Project", "InputDir", "From which directory must I create this project? "));
             Yes("Project", "MultiDir", "This this project a mult-dir project? (say 'no' if you are not sure, as that is then likely the correct answer!");
             Ask("Project", "Compression", "Preferred compression algorithm: ", "Store");
-            if (Release)
+            if (Release) {
+                Ask("Project", "Console::Release", "Console in Windows? (Release) ");
+                Identify["OS.Windows", "Console"] = (Config["Project", "Console::Release"] == "YES").ToString().ToUpper();
                 OutputDir = Dirry.AD(Ask("Project", "Output::Release", "Were must I write the release package files? "));
-            else
+            } else {
+                Ask("Project", "Console::Debug", "Console in Windows? (Debug) ");
+                Identify["OS.Windows", "Console"] = (Config["Project", "Console::Debug"] == "YES").ToString().ToUpper();
                 OutputDir = Dirry.AD(Ask("Project", "Output::Debug", "Where must I write the debug package files?"));
+            }
             return true;
         }
+        
 
         public void Run() {
+            // Did we start well?
             if (!StartProject()) return;
+            // Gather
             if (MultiDir) {
                 var Lijst = FileList.GetDir(InputDir, 2);
                 foreach (var dir in Lijst) Gather(dir);
             } else {
                 Gather(".");
             }
+            // TODO: Lib collecting
+            while (WantedLibraries.Count > 0) {
+                var LibDirs = ListAsk("Libraries", "Directories", "In which directories can I find external libraries for this project?");
+                var Lib = WantedLibraries[0];
+                var SmLib = "";
+                string LibDir = "";
+                foreach(var D2 in LibDirs) {
+                    var D = Dirry.AD(D2);
+                    if (Directory.Exists($"{D}/{Lib}.NeilBundle")) { LibDir = $"{D}/{Lib}.NeilBundle";SmLib = $"{Lib}.NeilBundle/"; break; }
+                    if (Directory.Exists($"{D}/{Lib}.nlb")) { LibDir = $"{D}/{Lib}.nlb"; SmLib = $"{Lib}.nlb/"; break; }
+                }
+                if (LibDir == "") {
+                    PackErrors++; 
+                    QCol.QuickError($"Library {Lib} has not been found!"); 
+                    return;
+                }
+                Gather(LibDir, true, $"Libs/{SmLib}");
+                ProcessedLibraries.Add(Lib);
+                WantedLibraries.RemoveAt(0);
+                //break; // infinite loop break while stuff is not yet done
+            }
+            // Pack
+            foreach (var p in Package.Map.Keys)
+                Pack(p,MainClass.CLIConfig.GetBool("f"));
+            if (PackErrors==1) {
+                QCol.Yellow("\tThere was ");
+                QCol.Cyan("1");
+                QCol.Yellow(" error\n");
+            } else {
+                QCol.Yellow("\tThere were ");
+                QCol.Cyan($"{PackErrors}");
+                QCol.Yellow(" errors\n");
+            }
+            if (PackErrors == 0) ChangeLog.SaveSource(ChangeLogFile);
         }
 
 

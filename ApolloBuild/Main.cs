@@ -4,7 +4,7 @@
 // 
 // 
 // 
-// (c) Jeroen P. Broks, 2020
+// (c) Jeroen P. Broks, 2020, 2021
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,16 +21,12 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 20.09.03
+// Version: 21.06.07
 // EndLic
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
 using TrickyUnits;
-
+using UseJCR6;
 
 namespace ApolloBuild {
     class MainClass {
@@ -38,7 +34,7 @@ namespace ApolloBuild {
         static public FlagParse CLIConfig { get; private set; } = null;
 
         static void Head() {
-            MKL.Version("Apollo Builder - Main.cs","20.09.03");
+            MKL.Version("Apollo Builder - Main.cs","21.06.07");
             MKL.Lic    ("Apollo Builder - Main.cs","GNU General Public License 3");
             QCol.White("Apollo Builder\n");
             QCol.Doing("Version", MKL.Newest);
@@ -55,6 +51,8 @@ namespace ApolloBuild {
 
         static void ShowHelp() {
             QCol.White("Usage: "); QCol.Yellow(qstr.StripAll(MKL.MyExe)); QCol.Blue(" [flags] "); QCol.Cyan("<Project>\n");
+            Console.ResetColor();
+            Console.WriteLine(MKL.All());
         }
 
 
@@ -62,6 +60,15 @@ namespace ApolloBuild {
         static void Main(string[] args) {
             Dirry.InitAltDrives();
             Project.InitEngineSpecific();
+            QCol.DoingTab = 20;
+            JCR6_lzma.Init();
+            JCR6_zlib.Init();
+            JCR6_jxsrcca.Init();
+            JCR6_JXSDA.Init();
+            new JCR6_WAD();
+            new JCR_QuakePack();
+            new JCR6_RealDir();
+            new JCR_QuickLink();
             Head();
             ParseCLIConfig(args);
             if (CLIConfig.Args.Length == 0) {
@@ -72,7 +79,7 @@ namespace ApolloBuild {
                     P.Run();
                 }
             }
-        
+            Console.ResetColor();        
             TrickyDebug.AttachWait();
         }
     }
