@@ -21,7 +21,7 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 21.06.07
+// Version: 21.07.06
 // EndLic
 
 using System;
@@ -61,13 +61,14 @@ namespace ApolloBuild {
 
         public string InputDir { private set; get; } = "";
         public string OutputDir { private set; get; } = "";
+        public bool AllowBlocks { private set; get; } = false;
 
         public string IdentifySource => Identify.ToSource();
 
         static Dictionary<string, List<EngineSpecific>> EngineSpecificQuestions = new Dictionary<string,List<EngineSpecific>>();
 
         public static void InitEngineSpecific() {
-            MKL.Version("Apollo Builder - Project.cs","21.06.07");
+            MKL.Version("Apollo Builder - Project.cs","21.07.06");
             MKL.Lic    ("Apollo Builder - Project.cs","GNU General Public License 3");
             // CP SDL game engine
             var L = new List<EngineSpecific>();
@@ -200,6 +201,7 @@ namespace ApolloBuild {
             InputDir=Dirry.AD(Ask("Project", "InputDir", "From which directory must I create this project? "));
             Yes("Project", "MultiDir", "This this project a mult-dir project? (say 'no' if you are not sure, as that is then likely the correct answer!");
             Ask("Project", "Compression", "Preferred compression algorithm: ", "Store");
+            AllowBlocks=Yes("Project", "AllowSolid", "May I pack specific directories together in blocks? ");
             if (Release) {
                 Ask("Project", "Console::Release", "Console in Windows? (Release) ");
                 Identify["OS.Windows", "Console"] = (Config["Project", "Console::Release"] == "YES").ToString().ToUpper();
