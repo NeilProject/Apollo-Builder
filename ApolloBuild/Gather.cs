@@ -21,7 +21,7 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 21.07.06
+// Version: 21.07.18
 // EndLic
 
 using System;
@@ -37,9 +37,9 @@ namespace ApolloBuild {
 	class Package {
 		readonly public string Output = "";
 		//readonly public Dictionary<string, List<string>> files=new Dictionary<string, List<string>>();
-		 public int modified = 0;
-		 public int deleted = 0;
-		 public int added = 0;
+		public int modified = 0;
+		public int deleted = 0;
+		public int added = 0;
 		public int forced = 0;
 		private Package(string O) { Output = O; }
 

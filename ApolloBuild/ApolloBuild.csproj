@@ -214,6 +214,7 @@
     <Compile Include="..\..\TrickyUnits\TrickyDbg.cs">
       <Link>Dependencies\Tricky%27s Units\TrickyDbg.cs</Link>
     </Compile>
+    <Compile Include="Engines.cs" />
     <Compile Include="Gather.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Pack.cs" />

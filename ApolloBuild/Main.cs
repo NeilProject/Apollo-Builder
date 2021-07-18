@@ -21,7 +21,7 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 21.06.07
+// Version: 21.07.18
 // EndLic
 
 using System;
@@ -33,8 +33,12 @@ namespace ApolloBuild {
 
         static public FlagParse CLIConfig { get; private set; } = null;
 
+        static public GINIE GlobConfig = null;
+
+        static public bool MkRelease => CLIConfig.GetBool("r");
+
         static void Head() {
-            MKL.Version("Apollo Builder - Main.cs","21.06.07");
+            MKL.Version("Apollo Builder - Main.cs","21.07.18");
             MKL.Lic    ("Apollo Builder - Main.cs","GNU General Public License 3");
             QCol.White("Apollo Builder\n");
             QCol.Doing("Version", MKL.Newest);
@@ -59,6 +63,8 @@ namespace ApolloBuild {
 
         static void Main(string[] args) {
             Dirry.InitAltDrives();
+            GlobConfig = GINIE.FromFile(Dirry.C("$Home$/.Tricky__ApplicationSupport/Apollo.ini"));
+            GlobConfig.AutoSaveSource = Dirry.C("$Home$/.Tricky__ApplicationSupport/Apollo.ini");
             Project.InitEngineSpecific();
             QCol.DoingTab = 20;
             JCR6_lzma.Init();

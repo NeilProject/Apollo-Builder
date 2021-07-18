@@ -21,7 +21,7 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 21.07.06
+// Version: 21.07.18
 // EndLic
 
 using System;
@@ -34,14 +34,15 @@ namespace ApolloBuild {
 	partial class Project {
 
 		int PackErrors = 0;
+		TJCRCreate ReleaseOut = null;
 
-		void Pack(string pkgname,bool always=false) {
-			var pkg= Package.Get(this,pkgname);
+		void Pack(string pkgname, bool always = false) {
+			var pkg = Package.Get(this, pkgname);
 			var mustpack = always;
 			var Blocks = new SortedDictionary<string, TJCRCreateBlock>();
 			List<string> imports; if (pkgname == "MAIN") imports = Config.List("PROJECT", "IMPORT"); else imports = Config.List($"PACKAGE::{pkgname}", "IMPORT");
 			QCol.Doing("Package", pkgname);
-			mustpack = mustpack || pkg.added > 0 || pkg.deleted > 0 || pkg.forced > 0 || pkg.modified > 0;
+			mustpack = mustpack || pkg.added > 0 || pkg.deleted > 0 || pkg.forced > 0 || pkg.modified > 0 || MainClass.MkRelease;
 			if (pkg.added > 0) QCol.Green($"Added: {pkg.added}\t");
 			if (pkg.deleted > 0) QCol.Red($"Removed: {pkg.deleted}\t");
 			if (pkg.modified > 0) QCol.Cyan($"Modified: {pkg.modified}\t");
@@ -51,9 +52,18 @@ namespace ApolloBuild {
 				return;
 			}
 			Console.WriteLine("\n");
-			Directory.CreateDirectory(OutputDir);
-			var JOut = new TJCRCreate($"{OutputDir}/{pkg.Output}.jcr", Config["Project", "Compression"],Config["Identify", "Signature"]);
-			if (JOut.mystream==null) {
+			if (!MainClass.MkRelease)
+				Directory.CreateDirectory(OutputDir);
+			TJCRCreate JOut = null;
+			if (MainClass.MkRelease) {
+				if (Config[$"PACKAGE::{pkgname}", "MergeOnRelease"] == "YES" || pkgname == "MAIN")
+					JOut = ReleaseOut;
+				else
+					JOut = new TJCRCreate($"{OutputDir}/{pkg.Output}.jcr", Config["Project", "Compression"], Config["Identify", "Signature"]);
+			} else {
+				JOut = new TJCRCreate($"{OutputDir}/{pkg.Output}.jcr", Config["Project", "Compression"], Config["Identify", "Signature"]);
+			}
+			if (JOut.mystream == null) {
 				QCol.QuickError($"JCR6 failed to create {pkg.Output}\n{JCR6.JERROR}");
 				PackErrors++;
 			}
@@ -62,7 +72,7 @@ namespace ApolloBuild {
 				foreach (var p in Package.Map.Keys) {
 					var pk = Package.Map[p];
 					if (p != "MAIN") {
-						if (Config[$"PACKAGE::{p}", "MergeOnRelease"] == "YES" || (!Yes($"PACKAGE::{p}", "Optional","Is package {p} optional")))
+						if ((!(Config[$"PACKAGE::{pkgname}", "MergeOnRelease"] == "YES" && MainClass.MkRelease)) && (Config[$"PACKAGE::{p}", "MergeOnRelease"] == "YES" || (!Yes($"PACKAGE::{p}", "Optional", "Is package {p} optional"))))
 							JOut.Require($"{pk.Output}.jcr", Config["Identify", "Signature"]);
 						else
 							JOut.Import($"{pk.Output}.jcr");
@@ -149,27 +159,40 @@ namespace ApolloBuild {
 					}
 				}
 			}
-			foreach(var BLK in Blocks) {
+			foreach (var BLK in Blocks) {
 				QCol.Doing("  Adding", $"Block: {BLK.Key}", "\r");
 				BLK.Value.Close();
-				QCol.Magenta(qstr.Right($"  {BLK.Value.Ratio}%", 4) + " ");                
+				QCol.Magenta(qstr.Right($"  {BLK.Value.Ratio}%", 4) + " ");
 				QCol.Green($"{BLK.Value.Storage}\n");
 			}
 			foreach (string imp in imports) {
-				JOut.Import(imp);
 				QCol.Doing("Import", imp);
+				if (MainClass.MkRelease) {
+					if (Yes($"PACKAGE::{pkgname}", $"CopyImport_PRF::{imp}", "Do you want to copy in this import file from its original location into the release")) {
+						var tgt = qstr.StripDir(imp);
+						var ori = Dirry.AD(Ask($"PACKAGE::{pkgname}", $"COPYIMPORT_ORI::{imp}", "Give me the full path of the original", $"{Config["Project", "OUTPUT::DEBUG"]}/{tgt}"));
+						QCol.Doing("Copying", $"{ori} => {tgt}");
+						try {
+							File.Copy(ori, $"{Dirry.AD(Config["Project", "OUTPUT::RELEASE"])}/{Dirry.AD(tgt)}");
+							JOut.Import(tgt);
+						} catch (Exception E) {
+							QCol.QuickError($"{E.Message}");
+							PackErrors++;
+						}
+					} else JOut.Import(imp);
+				} else
+					JOut.Import(imp);
 			}
-			if (Config.HasList($"PACKAGE::{pkgname}","ALIAS")) { 
-				foreach(var alline in Config.List($"PACKAGE::{pkgname}", "ALIAS")) {
+			if (Config.HasList($"PACKAGE::{pkgname}", "ALIAS")) {
+				foreach (var alline in Config.List($"PACKAGE::{pkgname}", "ALIAS")) {
 					string[] doit = new string[2];
 					int addto = 0;
 					bool goed = true;
 					if (alline == "") { }// should never happen
-					else if(alline.Length<6) { QCol.QuickError("Alias line too short to be taken seriously"); PackErrors++; }
-					else {
+					else if (alline.Length < 6) { QCol.QuickError("Alias line too short to be taken seriously"); PackErrors++; } else {
 						int pos = 0;
 						do {
-							if (pos<alline.Length-4 && qstr.Mid(alline, pos + 1, 4) == " => ") {
+							if (pos < alline.Length - 4 && qstr.Mid(alline, pos + 1, 4) == " => ") {
 								if (addto > 0) {
 									QCol.QuickError("Syntax error! Dupe => in alias!"); PackErrors++; goed = false;
 								} else {
@@ -193,7 +216,8 @@ namespace ApolloBuild {
 			} else {
 				Verbose.Printf("There were no aliases!\n");
 			}
-			JOut.Close();
+			if (JOut != ReleaseOut)
+				JOut.Close();
 		}
 
 	}
