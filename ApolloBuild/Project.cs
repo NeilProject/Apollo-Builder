@@ -220,6 +220,10 @@ namespace ApolloBuild {
 				Identify["OS.Windows", "Console"] = (Config["Project", "Console::Debug"] == "YES").ToString().ToUpper();
 				OutputDir = Dirry.AD(Ask("Project", "Output::Debug", "Where must I write the debug package files?"));
 			}
+			if (Yes(Identify, "Kthura", "UseAS", "Should Kthura use the AS system")) {
+				Ask(Identify, "Kthura", "ASW", "Width:");
+				Ask(Identify, "Kthura", "ASH", "Height:");
+			}
 			return true;
 		}
 
