@@ -23,7 +23,8 @@
 // 
 // Version: 21.07.18
 // EndLic
-???using System;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,75 +33,75 @@ using System.Threading.Tasks;
 using TrickyUnits;
 
 namespace ApolloBuild {
-    class Engines {
-        readonly string MainExe;
-        readonly string ARF;
-        readonly string[] DepenendenciesInSameDir;
+	class Engines {
+		readonly string MainExe;
+		readonly string ARF;
+		readonly string[] DepenendenciesInSameDir;
 
-        private Engines(string MExe, string _ARF,params string[] Dep) {
-            MainExe = MExe;
-            ARF = _ARF;
-            DepenendenciesInSameDir = Dep;
-        }
+		private Engines(string MExe, string _ARF,params string[] Dep) {
+			MainExe = MExe;
+			ARF = _ARF;
+			DepenendenciesInSameDir = Dep;
+		}
 
-        static public Engines Get(string s) {
-            Init();
-            s = s.ToUpper();
-            // foreach(var dbg in Register) { QCol.Doing("Got", s, " ");  QCol.Doing("Key", dbg.Key, " "); QCol.Doing("Addr", $"{ dbg.Value}"); } // debug only
-            if (!Register.ContainsKey(s)) return null; else return Register[s];
-        }
+		static public Engines Get(string s) {
+			Init();
+			s = s.ToUpper();
+			// foreach(var dbg in Register) { QCol.Doing("Got", s, " ");  QCol.Doing("Key", dbg.Key, " "); QCol.Doing("Addr", $"{ dbg.Value}"); } // debug only
+			if (!Register.ContainsKey(s)) return null; else return Register[s];
+		}
 
-        public void Copy(Project Prj) {
-            var ODir = Dirry.AD(MainClass.GlobConfig["Builder_Releases", Prj.GetIdentify("Engine", "Sub")]);
-            var ExeTar = $"{Prj.OutputDir}/{qstr.StripDir(Prj.TrueProject)}.exe";
-            var ExeOri = $"{ODir}/{MainExe}";
-            var ARFTar = $"{Prj.OutputDir}/{qstr.StripDir(Prj.TrueProject)}.arf";
-            var ARFOri = $"{ODir}/{ARF}";
-            try {
-                QCol.Doing("Copying", ExeOri, "");
-                QCol.Yellow(" => ");
-                QCol.Cyan($"{ExeTar}\n");
-                File.Copy(ExeOri, ExeTar);
-                QCol.Doing("Copying", ARFOri, "");
-                QCol.Yellow(" => ");
-                QCol.Cyan($"{ARFTar}\n");
-                File.Copy(ARFOri, ARFTar);
-                foreach (var file in DepenendenciesInSameDir) {
-                    QCol.Doing("Copying", $"{ODir}/{file}");
-                    File.Copy($"{ODir}/{file}", $"{Prj.OutputDir}/{file}");
-                }
-                QCol.Green("Success\n\n");
-            } catch(Exception E) {
-                QCol.QuickError(E.Message);
-            }
-        }
+		public void Copy(Project Prj) {
+			var ODir = Dirry.AD(MainClass.GlobConfig["Builder_Releases", Prj.GetIdentify("Engine", "Sub")]);
+			var ExeTar = $"{Prj.OutputDir}/{qstr.StripDir(Prj.TrueProject)}.exe";
+			var ExeOri = $"{ODir}/{MainExe}";
+			var ARFTar = $"{Prj.OutputDir}/{qstr.StripDir(Prj.TrueProject)}.arf";
+			var ARFOri = $"{ODir}/{ARF}";
+			try {
+				QCol.Doing("Copying", ExeOri, "");
+				QCol.Yellow(" => ");
+				QCol.Cyan($"{ExeTar}\n");
+				File.Copy(ExeOri, ExeTar);
+				QCol.Doing("Copying", ARFOri, "");
+				QCol.Yellow(" => ");
+				QCol.Cyan($"{ARFTar}\n");
+				File.Copy(ARFOri, ARFTar);
+				foreach (var file in DepenendenciesInSameDir) {
+					QCol.Doing("Copying", $"{ODir}/{file}");
+					File.Copy($"{ODir}/{file}", $"{Prj.OutputDir}/{file}");
+				}
+				QCol.Green("Success\n\n");
+			} catch(Exception E) {
+				QCol.QuickError(E.Message);
+			}
+		}
 
 
-        static Dictionary<string, Engines> Register = new Dictionary<string, Engines>();
+		static Dictionary<string, Engines> Register = new Dictionary<string, Engines>();
 
-        private static bool doneInit = false;
-        static public void Init() {
-            if (doneInit) return; doneInit = true;
-            Register["GAMECPSDL"] = new Engines(
-                "Apollo Game Engine.exe",
-                "Apollo Game Engine.arf",
-                "libtiff-5.dll",
-                "zlib1.dll",
-                "SDL2_image.dll",
-                "libwebp-7.dll",
-                "libpng16-16.dll",
-                "libjpeg-9.dll",
-                "SDL2_mixer.dll",
-                "libmodplug-1.dll",
-                "libopus-0.dll",
-                "libogg-0.dll",
-                "libvorbis-0.dll",
-                "libopusfile-0.dll",
-                "libvorbisfile-3.dll",
-                "libmpg123-0.dll",
-                "libFLAC-8.dll",
-                "SDL2_ttf.dll",
-                "Lua.dll");
-        }
-    }
+		private static bool doneInit = false;
+		static public void Init() {
+			if (doneInit) return; doneInit = true;
+			Register["GAMECPSDL"] = new Engines(
+				"Apollo Game Engine.exe",
+				"Apollo Game Engine.arf",
+				"libtiff-5.dll",
+				"zlib1.dll",
+				"SDL2_image.dll",
+				"libwebp-7.dll",
+				"libpng16-16.dll",
+				"libjpeg-9.dll",
+				"SDL2_mixer.dll",
+				"libmodplug-1.dll",
+				"libopus-0.dll",
+				"libogg-0.dll",
+				"libvorbis-0.dll",
+				"libopusfile-0.dll",
+				"libvorbisfile-3.dll",
+				"libmpg123-0.dll",
+				"libFLAC-8.dll",
+				"SDL2_ttf.dll",
+				"Lua.dll");
+		}
+	}
 }
