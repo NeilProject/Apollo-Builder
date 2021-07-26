@@ -70,6 +70,11 @@ namespace ApolloBuild {
 					QCol.Doing("Copying", $"{ODir}/{file}");
 					File.Copy($"{ODir}/{file}", $"{Prj.OutputDir}/{file}");
 				}
+				foreach(var file in Prj.ReleaseCopy) {
+					var f = Dirry.AD(file);
+					QCol.Doing("Copying", f);
+					File.Copy(f, $"{Prj.OutputDir}/{qstr.StripDir(f)}");
+				}
 				QCol.Green("Success\n\n");
 			} catch(Exception E) {
 				QCol.QuickError(E.Message);

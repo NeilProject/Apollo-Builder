@@ -60,6 +60,8 @@ namespace ApolloBuild {
 		public bool Release = MainClass.CLIConfig.GetBool("r");
 		public bool MultiDir => (Config["Project", "MultiDir"].ToUpper() == "YES" || Config["Project", "MultiDir"].ToUpper() == "JA" || Config["Project", "MultiDir"].ToUpper() == "TRUE" || Config["Project", "MultiDir"].ToUpper() == "WAAR");
 
+		public string[] ReleaseCopy => Config.List("Project", "ReleaseCopy").ToArray();
+
 		public string InputDir { private set; get; } = "";
 		public string OutputDir { private set; get; } = "";
 		public bool AllowBlocks { private set; get; } = false;
