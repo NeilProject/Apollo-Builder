@@ -138,8 +138,29 @@ namespace ApolloBuild {
 				return;
 			}
 			QCol.Doing("Gathering", src);
-			string Author; if (lib) Author = Ask($"LIBRARY::{src}", "Author", "Lib Author:"); else Author = Ask($"Dir::{src}", "Author", "Author:", src);
-			string Notes; if (lib) Notes = Ask($"LIBRARY::{src}", "Notes", "Lib Notes:","",true); else Notes = Ask($"Dir::{src}", "Notes", "Notes:", "", true);
+			bool useinlib = false;
+			string Author;
+			string Notes;
+			if (lib) {
+				var libfile = $"{src}/.ApolloGather.ini";
+				useinlib = File.Exists(libfile);
+				if (!useinlib) {
+					useinlib = Yes($"LIBRARY::{src}", "CreateIfNoDataIsThere", $"A library({src}) is requested without any data ({libfile}) in it! Create it");
+
+                }
+				if (useinlib) {
+					GINIE LibIni = GINIE.FromFile(libfile);
+					LibIni.AutoSaveSource = libfile;
+					Author = Ask(LibIni,$"Meta", "Author", "LIB: Lib Author:");
+					Notes = Ask(LibIni,$"Meta", "Notes", "LIB: Lib Notes:", "", true);
+				} else {
+					Author = Ask($"LIBRARY::{src}", "Author", "PRJ: Lib Author:"); 
+					Notes = Ask($"LIBRARY::{src}", "Notes", "PRJ: Lib Notes:", "", true); 
+				}
+			} else {
+				Author = Ask($"Dir::{src}", "Author", "Author:", src);
+				Notes = Ask($"Dir::{src}", "Notes", "Notes:", "", true);
+			}
 			var addtopackage = "MAIN"; 
 			if (lib) addtopackage = Ask("Libraries", "Package", "Which package do you want to use for libraries? ").ToUpper();
 			else if (MultiDir) addtopackage = Ask($"Dir::{src}", "Package", "Packages", "MAIN").ToUpper();
