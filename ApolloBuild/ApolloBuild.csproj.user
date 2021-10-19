@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <StartArguments>"Scyndi:Projects/Applications/Apollo/Games/Star Story/src/Tricky Script/.Project/Star Story" -r</StartArguments>
+    <StartArguments>"Scyndi:Projects/Applications/Apollo/Games/Star Story 2/src/Tricky Script/.Project/Star Story 2"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartArguments>"Scyndi:Projects/Applications/Apollo/Games/Star Story/src/Tricky Script/Project/Star Story" -v</StartArguments>
