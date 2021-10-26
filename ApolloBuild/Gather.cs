@@ -147,7 +147,7 @@ namespace ApolloBuild {
 				if (!useinlib) {
 					useinlib = Yes($"LIBRARY::{src}", "CreateIfNoDataIsThere", $"A library({src}) is requested without any data ({libfile}) in it! Create it");
 
-                }
+				}
 				if (useinlib) {
 					GINIE LibIni = GINIE.FromFile(libfile);
 					LibIni.AutoSaveSource = libfile;
