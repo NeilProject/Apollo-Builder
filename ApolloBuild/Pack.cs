@@ -72,7 +72,7 @@ namespace ApolloBuild {
 				foreach (var p in Package.Map.Keys) {
 					var pk = Package.Map[p];
 					if (p != "MAIN") {
-						if ((!(Config[$"PACKAGE::{pkgname}", "MergeOnRelease"] == "YES" && MainClass.MkRelease)) && (Config[$"PACKAGE::{p}", "MergeOnRelease"] == "YES" || (!Yes($"PACKAGE::{p}", "Optional", "Is package {p} optional"))))
+						if ((!(Config[$"PACKAGE::{pkgname}", "MergeOnRelease"] == "YES" && MainClass.MkRelease)) && (Config[$"PACKAGE::{p}", "MergeOnRelease"] == "YES" || (!Yes($"PACKAGE::{p}", "Optional", $"Is package {p} optional"))))
 							JOut.Require($"{pk.Output}.jcr", Config["Identify", "Signature"]);
 						else
 							JOut.Import($"{pk.Output}.jcr");
@@ -89,42 +89,48 @@ namespace ApolloBuild {
 					if (JCRMerge) {
 						var Jmrg = JCR6.Dir(G.OriginalFile);
 						Verbose.Doing("  Merging", G.OriginalFile);
-						foreach (var e in Jmrg.Entries.Values) {
-							QCol.Doing("  Adding", "", "");
-							QCol.Magenta(G.OriginalFile);
-							QCol.White("/");
-							QCol.Cyan($"{e.Entry}\r");
-							var EA = e.Author;
-							var EN = e.Notes;
-							if (EA == "" && EN == "" && Yes("JCR6", "MergePackageNotes", "No author and notes found. Should I just copy the package data whenever this happens")) {
-								EA = G.Author;
-								EN = G.Notes;
-							}
-							//Console.WriteLine($"DEBUG: {G.OriginalFile} - {G.Block} ");
-							if (G.Block == "") {
-								JOut.AddBytes(Jmrg.JCR_B(e.Entry), $"{G.StoreAs}/{e.Entry}", Config["Project", "Compression"], EA, EN);
-								if (!JOut.Entries.ContainsKey(($"{G.StoreAs}/{e.Entry}").ToUpper())) {
-									QCol.Red("  Failure\n");
-									QCol.QuickError(JCR6.JERROR);
-									PackErrors++;
-								} else {
-									var E = JOut.Entries[($"{G.StoreAs}/{e.Entry}").ToUpper()];
-									if (E.Storage == "Store") {
-										QCol.Green("     Stored\n");
-									} else {
-										QCol.Magenta(qstr.Right($"   {E.Ratio}", 4) + " ");
-										QCol.Green($"{E.Storage}\n");
-									}
+						if (Jmrg == null) {
+							QCol.QuickError($"Reading the directory of {G.OriginalFile} failed");
+							QCol.Magenta($"{JCR6.JERROR}\n");
+							PackErrors++;
+						} else {
+							foreach (var e in Jmrg.Entries.Values) {
+								QCol.Doing("  Adding", "", "");
+								QCol.Magenta(G.OriginalFile);
+								QCol.White("/");
+								QCol.Cyan($"{e.Entry}\r");
+								var EA = e.Author;
+								var EN = e.Notes;
+								if (EA == "" && EN == "" && Yes("JCR6", "MergePackageNotes", "No author and notes found. Should I just copy the package data whenever this happens")) {
+									EA = G.Author;
+									EN = G.Notes;
 								}
-							} else {
-								if (!Blocks.ContainsKey(G.Block)) Blocks[G.Block] = new TJCRCreateBlock(JOut, Config["Project", "Compression"]);
-								Blocks[G.Block].AddBytes(Jmrg.JCR_B(e.Entry), $"{G.StoreAs}/{e.Entry}", EA, EN);
-								if (!JOut.Entries.ContainsKey(($"{G.StoreAs}/{e.Entry}").ToUpper())) {
-									QCol.Red("  Failure\n");
-									QCol.QuickError(JCR6.JERROR);
-									PackErrors++;
+								//Console.WriteLine($"DEBUG: {G.OriginalFile} - {G.Block} ");
+								if (G.Block == "") {
+									JOut.AddBytes(Jmrg.JCR_B(e.Entry), $"{G.StoreAs}/{e.Entry}", Config["Project", "Compression"], EA, EN);
+									if (!JOut.Entries.ContainsKey(($"{G.StoreAs}/{e.Entry}").ToUpper())) {
+										QCol.Red("  Failure\n");
+										QCol.QuickError(JCR6.JERROR);
+										PackErrors++;
+									} else {
+										var E = JOut.Entries[($"{G.StoreAs}/{e.Entry}").ToUpper()];
+										if (E.Storage == "Store") {
+											QCol.Green("     Stored\n");
+										} else {
+											QCol.Magenta(qstr.Right($"   {E.Ratio}", 4) + " ");
+											QCol.Green($"{E.Storage}\n");
+										}
+									}
 								} else {
-									QCol.DarkGray("   To Block\n");
+									if (!Blocks.ContainsKey(G.Block)) Blocks[G.Block] = new TJCRCreateBlock(JOut, Config["Project", "Compression"]);
+									Blocks[G.Block].AddBytes(Jmrg.JCR_B(e.Entry), $"{G.StoreAs}/{e.Entry}", EA, EN);
+									if (!JOut.Entries.ContainsKey(($"{G.StoreAs}/{e.Entry}").ToUpper())) {
+										QCol.Red("  Failure\n");
+										QCol.QuickError(JCR6.JERROR);
+										PackErrors++;
+									} else {
+										QCol.DarkGray("   To Block\n");
+									}
 								}
 							}
 						}
