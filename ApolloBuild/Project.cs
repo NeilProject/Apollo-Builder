@@ -91,6 +91,7 @@ namespace ApolloBuild {
 			TrueProject = Dirry.AD(PRJ);
 			ProjectFile = $"{TrueProject}.ApolloProject.ini";
 			ChangeLogFile = $"{TrueProject}.AChangelog.ini";
+			QCol.Doing("Project", TrueProject);
 		}
 
 		bool WaitForYes(string Question) {
