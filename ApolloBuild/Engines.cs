@@ -106,6 +106,7 @@ namespace ApolloBuild {
 				"libmpg123-0.dll",
 				"libFLAC-8.dll",
 				"SDL2_ttf.dll",
+				"SDL2.dll",
 				"Lua.dll");
 		}
 	}
