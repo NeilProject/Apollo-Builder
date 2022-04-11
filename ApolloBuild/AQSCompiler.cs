@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+//using System.Windows.Forms;
 using TrickyUnits;
 
 namespace Tricky_Apollo {
@@ -34,7 +36,17 @@ namespace Tricky_Apollo {
 				get {
 					switch (Type) {
 						case AQSType.Int: return qstr.ToInt(Value);
-						case AQSType.Label: return parent.parent.Labels[Value];
+						case AQSType.Label: {
+								var Lab = Value.ToUpper().Trim();
+								if (!parent.parent.Labels.ContainsKey(Lab)) {
+#if DEBUG
+									foreach (var l in parent.parent.Labels) Debug.WriteLine($"Label \"{l.Key}\"/\"{Lab}\" >>> {l.Value}   ({parent.parent.Labels.ContainsKey(Lab)}/{l.Key==Lab})");
+#endif
+									//Confirm.Annoy($"Unknown label requested \"{Lab}\"", "Error", MessageBoxIcon.Error);
+									return 0;
+								}
+								return parent.parent.Labels[Lab];
+							}
 						default:
 							return 0;
 					}
@@ -72,7 +84,7 @@ namespace Tricky_Apollo {
 
 		class TCmd { }
 
-		class TFout : Exception {
+		public class TFout : Exception {
 			readonly internal int Line;
 			readonly internal string File;
 			readonly internal string M;
@@ -106,10 +118,10 @@ namespace Tricky_Apollo {
 				Register("EXIT", 0);
 				Register("CALL", 1, "*INF*");
 				Register("JMP", 2, "LABEL");
-				Register("CHK", 3, "STRING");
-				Register("CMP", 4, "STRING", "AUTO");
-				Register("CMPL", 5, "STRING", "AUTO");
-				Register("CMPG", 6, "STRING", "AUTO");
+				Register("CHK", 3, "*INF*");
+				Register("CMP", 4, "AUTO", "AUTO");
+				Register("CMPL", 5, "AUTO", "AUTO");
+				Register("CMPG", 6, "AUTO", "AUTO");
 				Register("JMPTRUE", 7, "LABEL");
 				Register("JMPFALSE", 8, "LABEL");
 				Register("MOV", 9, "STRING", "AUTO");
@@ -123,11 +135,13 @@ namespace Tricky_Apollo {
 				Register("SUB2", 17, "STRING", "STRING", "AUTO");
 				Register("MUL2", 18, "STRING", "STRING", "AUTO");
 				Register("DIV2", 19, "STRING", "STRING", "AUTO");
+				Register("DONE", 20, "STRING");
 			}
 		}
 
 		void C(string[] Lines, string f) {
 			for (int i = 0; i < Lines.Length; i++) {
+				//Console.WriteLine($"Compiling line {i + 1}/{Lines.Length}");
 				var plist = new List<string>();
 				string Regel = Lines[i].Trim();
 				if (Regel.Length > 0 && Regel[0] != ';') {
@@ -147,9 +161,10 @@ namespace Tricky_Apollo {
 						if (CurrentChunk == "") throw new TFout("Label requires chunk", RegelNummer, f);
 						if (Chunk.Labels.ContainsKey(L)) throw new TFout($"Duplicate label {L}", RegelNummer, f);
 						Chunk.Labels[L] = Chunk.Instructions.Count;
+						Debug.WriteLine($"Label {L} added, position: {Chunk.Labels[L]}");
 					} else {
 						switch (cmd) {
-							case "INC":
+							//case "INC":
 							case "INCLUDE": {
 									if (param == "") throw new TFout("Include without file", RegelNummer, f);
 									var incf = param.Replace("\\", "/");
@@ -183,7 +198,7 @@ namespace Tricky_Apollo {
 							case "CCHUNK": {
 									if (param == "") throw new TFout("Dataless Current State Chunk", RegelNummer, f);
 									var p = param.Split(',');
-									if (p.Length != 2) throw new TFout("State Current Chunk Syntax Error", RegelNummer, f);
+									if (p.Length != 2) throw new TFout($"State Current Chunk Syntax Error ({p.Length}!=2)", RegelNummer, f);
 									var chnk = p[0].ToUpper();
 									var func = p[1];
 									if (Chunks.ContainsKey(chnk)) throw new TFout("Cannot make a state chunk out of an existing chunk");
@@ -332,7 +347,7 @@ namespace Tricky_Apollo {
 			foreach (var Ch in Chunks) {
 				foreach (var Inst in Ch.Value.Instructions) {
 					foreach(var Para in Inst.Parameters) {
-						if (Para.Type == AQSType.Label && (!Ch.Value.Labels.ContainsKey(Para.Value))) throw new TFout($"Reference to non-existent label '{Para.Value} in chunk {Ch.Key}", 0, f);
+						if (Para.Type == AQSType.Label && (!Ch.Value.Labels.ContainsKey(Para.Value.ToUpper()))) throw new TFout($"Reference to non-existent label '{Para.Value} in chunk {Ch.Key}", 0, f);
 					}
 				}
 			}
